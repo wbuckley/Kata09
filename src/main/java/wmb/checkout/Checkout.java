@@ -2,22 +2,20 @@ package wmb.checkout;
 
 public class Checkout
 {
-    private PricingRules pricingRules;
+    private final Receipt receipt;
 
-    public int price;
-
-    public Checkout(final PricingRules pricingRules)
+    public Checkout(final PricingRule pricingRule)
     {
-        this.pricingRules = pricingRules;
+        receipt = new Receipt(pricingRule);
     }
 
     public void scan(final String item)
     {
-        price += pricingRules.append(item);
+        receipt.add(item);
     }
 
     public int price()
     {
-        return price;
+        return receipt.price();
     }
 }

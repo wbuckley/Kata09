@@ -12,13 +12,15 @@ public class CheckoutTest
 {
     public int price(List<String> goods)
     {
-        Checkout co = new Checkout(new PricingRules());
-
+        Checkout co =
+                new Checkout(new PricingRule(ImmutableList.of(new PriceCalculator(new XForY(3, 30, 50), "A"), new PriceCalculator(new XForY(2, 15, 30), "B"),
+                                                              new PriceCalculator(new FlatPrice(20), "C"),
+                                                              new PriceCalculator(new FlatPrice(15), "D")), ImmutableList.of(new CrossProductPriceCalculator(new OverallPercentageDiscount(10), "C", "D"))));
         for (String item : goods)
         {
             co.scan(item);
         }
-        return co.price;
+        return co.price();
     }
 
     @Test
@@ -27,11 +29,12 @@ public class CheckoutTest
         assertThat(0, equalTo(price(ImmutableList.<String>of())));
         assertThat(50, equalTo(price(ImmutableList.of("A"))));
         assertThat(80, equalTo(price(ImmutableList.of("A", "B"))));
-        assertThat(115, equalTo(price(ImmutableList.of("C", "D", "B", "A"))));
+        assertThat(130, equalTo(price(ImmutableList.of("A", "B", "A"))));
+        assertThat(103, equalTo(price(ImmutableList.of("C", "D", "B", "A"))));
         assertThat(100, equalTo(price(ImmutableList.of("A", "A"))));
         assertThat(130, equalTo(price(ImmutableList.of("A", "A", "A"))));
         assertThat(180, equalTo(price(ImmutableList.of("A", "A", "A", "A"))));
-        assertThat(390, equalTo(price(ImmutableList.of("A", "A", "A", "A", "A", "A", "A", "A", "A" ))));
+        assertThat(390, equalTo(price(ImmutableList.of("A", "A", "A", "A", "A", "A", "A", "A", "A"))));
         assertThat(230, equalTo(price(ImmutableList.of("A", "A", "A", "A", "A"))));
         assertThat(260, equalTo(price(ImmutableList.of("A", "A", "A", "A", "A", "A"))));
         assertThat(160, equalTo(price(ImmutableList.of("A", "A", "A", "B"))));
@@ -43,18 +46,33 @@ public class CheckoutTest
     @Test
     public void testIncremental()
     {
-        Checkout co = new Checkout(new PricingRules());
+        Checkout co =
+                new Checkout(new PricingRule(ImmutableList.of(new PriceCalculator(new XForY(3, 30, 50), "A"), new PriceCalculator(new XForY(2, 15, 30), "B"),
+                                                              new PriceCalculator(new FlatPrice(20), "C"),
+                                                              new PriceCalculator(new FlatPrice(15), "D")), ImmutableList.of(new CrossProductPriceCalculator(new OverallPercentageDiscount(10), "C", "D"))));
 
-        assertThat(0, equalTo(co.price));
+        System.out.println("***************");
+        assertThat(0, equalTo(co.price()));
         co.scan("A");
-        assertThat(50, equalTo(co.price));
+        System.out.println("***************");
+        assertThat(50, equalTo(co.price()));
+        co.scan("A");
+        System.out.println("***************");
+        assertThat(100, equalTo(co.price()));
+        co.scan("A");
+        System.out.println("***************");
+        assertThat(130, equalTo(co.price()));
+        co.scan("A");
+        System.out.println("***************");
+        assertThat(180, equalTo(co.price()));
+        co.scan("A");
+        System.out.println("***************");
+        assertThat(230, equalTo(co.price()));
+        co.scan("A");
+        System.out.println("***************");
+        assertThat(260, equalTo(co.price()));
         co.scan("B");
-        assertThat(80, equalTo(co.price));
-        co.scan("A");
-        assertThat(130, equalTo(co.price));
-        co.scan("A");
-        assertThat(160, equalTo(co.price));
-        co.scan("B");
-        assertThat(175, equalTo(co.price));
+        System.out.println("***************");
+        assertThat(290, equalTo(co.price()));
     }
 }
